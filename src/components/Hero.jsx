@@ -1,5 +1,6 @@
 // Hero.jsx 
 import { useState, useEffect } from 'react';
+import {Link} from 'react-router-dom'
 
 export default function Hero() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -62,12 +63,14 @@ export default function Hero() {
               : 'transform translate-y-8 opacity-0 scale-105'
           }`}
         >
-          <button className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-yellow-400 font-bold text-black border-2 text-base sm:text-lg shadow-[4px_4px_0px_black] sm:shadow-[4px_4px_0px_black] hover:translate-x-1 hover:translate-y-1 hover:shadow-[1px_1px_0px_black] sm:hover:shadow-[1px_1px_0px_black] transition-all duration-100">
+          <Link to="/login" className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-yellow-400 font-bold text-black border-2
+           text-base sm:text-lg shadow-[4px_4px_0px_black] sm:shadow-[4px_4px_0px_black] hover:translate-x-1
+            hover:translate-y-1 hover:shadow-[1px_1px_0px_black] sm:hover:shadow-[1px_1px_0px_black] transition-all duration-100">
             Login
-          </button>
-          <a href="#plans" className="font-semibold flex items-center gap-2 text-black hover:text-gray-600 transition-colors text-base sm:text-lg">
+          </Link>
+          <Link to="/signup" className="font-semibold flex items-center gap-2 text-black hover:text-gray-600 transition-colors text-base sm:text-lg">
             Signup →
-          </a>
+          </Link>
         </div>
         
         {/* Guarantee - Responsive text */}

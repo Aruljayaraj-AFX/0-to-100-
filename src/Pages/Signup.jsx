@@ -5,8 +5,10 @@ import passclose from "../assets/passclose.png";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+
 export default function Login() {
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+const [ispasswordvisible, setispasswordvisible] = useState(false);
 
   return (
     <div className="min-h-screen relative flex justify-center items-center">
@@ -14,7 +16,7 @@ export default function Login() {
 
       {/* Login Box */}
       <div className="border-2 shadow-[6px_6px_0px_0px] border-black w-full max-w-md mx-4 p-8 flex flex-col bg-[#F8D6B3]/20 items-center gap-6">
-        <h1 className="text-2xl font-bold">LOGIN</h1>
+        <h1 className="text-2xl font-bold">SIGNUP</h1>
         <div className="flex w-full">
           <button className="bg-black text-white px-3 py-3 border-2 border-black rounded-l-full hover:bg-gray-800">
             <img src={usericon} alt="User Icon" className="h-5 w-5" />
@@ -45,10 +47,24 @@ export default function Login() {
             focus:outline-none focus:ring-0 rounded-r-full"
           />
         </div>
-
-        {/* Forgot Password */}
-        <div className="flex justify-end w-full text-gray-400 -mt-4 text-sm cursor-pointer hover:text-red-400">
-          <span>Forgot password?</span>
+        <div className="flex w-full">
+          <button
+            type="button"
+            onClick={() => setispasswordvisible(!ispasswordvisible)}
+            className="bg-black text-white px-3 py-3 border-2 border-black rounded-l-full hover:bg-gray-800"
+          >
+            <img
+              src={ispasswordvisible ? passopen : passclose}
+              alt="Toggle Password"
+              className="h-5 w-5"
+            />
+          </button>
+          <input
+            type={ispasswordvisible ? "text" : "password"}
+            placeholder="Confirm Password"
+            className="flex-1 px-4 py-3 border-2 border-black text-base font-medium placeholder-gray-500 
+            focus:outline-none focus:ring-0 rounded-r-full"
+          />
         </div>
 
         {/* Login Button */}
@@ -56,7 +72,7 @@ export default function Login() {
           <button className="w-full sm:w-auto px-6 sm:px-10 py-2 bg-yellow-400 font-semibold text-black sm:text-lg 
             shadow-[2px_2px_0px_black] hover:translate-x-1 hover:translate-y-1
             hover:shadow-[0px_0px_0px_black] transition-all duration-100 rounded-full">
-            LOGIN
+            SIGNUP
           </button>
         </div>
 
@@ -88,7 +104,7 @@ export default function Login() {
 
         {/* Signup */}
         <div className="w-full text-left text-xs text-gray-600 mt-4 cursor-pointer hover:text-blue-400">
-          <Link to="/signup">Signup? Create New Account</Link>
+          <Link to="/login">Login?Already Have Account</Link>
         </div>
       </div>
     </div>

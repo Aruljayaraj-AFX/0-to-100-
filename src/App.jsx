@@ -4,7 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayouts";
 const Home = lazy(() => import("./Pages/Home"));
 import Login from "./Pages/Login";
-
+import Signup from "./Pages/Signup";
 
 
 export default function App() {
@@ -15,6 +15,7 @@ export default function App() {
           <Route path="/" element={<Home />} /> 
         </Route>
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </Suspense>
   );
