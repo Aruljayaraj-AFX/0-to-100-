@@ -117,10 +117,12 @@ export default function Testimonials() {
     }
   }, [maxIndex, currentIndex]);
 
+  
+
   return (
-    <section className="text-center pt-8 sm:pt-12 lg:pt-20 pb-6 sm:pb-10 px-4 sm:px-6 lg:px-8 relative z-10">
+    <section id="testimonials" className="text-center pt-8 sm:pt-12 lg:pt-20 pb-6 sm:pb-10 px-4 sm:px-6 lg:px-8 relative z-10">
       {/* Heading */}
-      <div className="max-w-4xl mx-auto pb-12 sm:pb-16 lg:pb-20">
+      <div  className="max-w-4xl mx-auto pb-12 sm:pb-16 lg:pb-20">
         <div className="inline-block px-3 py-2 mb-4 sm:mb-6 bg-[#F8D6B3] border-2 border-black shadow-[3px_3px_0px_black] sm:shadow-[4px_4px_0px_black] font-bold text-xs sm:text-sm tracking-wider">
           TESTIMONIALS
         </div>
