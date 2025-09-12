@@ -28,7 +28,7 @@ export default function Hero() {
               : 'transform -translate-y-4 opacity-0 scale-105'
           }`}
         >
-          ENDLESS LEARN OPPORTUNITIES
+          BENDLESS LEARN OPPORTUNITIES
         </div>
         
         {/* Main Heading - Responsive text sizes */}
