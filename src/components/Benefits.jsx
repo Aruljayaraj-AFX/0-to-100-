@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import Row1 from './assets/Row1.png';
-import Row2 from './assets/National Book Festival - Amelia Chen.jpg';
-import Row3 from './assets/Photo.svg';
-import Row4 from './assets/Chiara Ghigliazza.jpg';
+import Row2 from "../assets/n.jpg";
+import Row3 from "../assets/Photo.svg";
+import Row4 from "../assets/a.jpg";
 
 export default function Tagline() {
   const [isLoaded, setIsLoaded] = useState(false);

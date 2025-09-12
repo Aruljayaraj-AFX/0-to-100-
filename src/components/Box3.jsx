@@ -1,8 +1,8 @@
-import Row22 from './assets/Find the way in yourself.jpg';
-import Row3 from './assets/Dan Bejar.jpg';
-import Row21 from './assets/Row2.jpg';
-import Arrow from './assets/Arrow.png';
-import Arrow2 from './assets/Arrow2.png';
+import Row22 from '../assets/b.jpg';
+import Row3 from '../assets/c.jpg';
+import Row21 from '../assets/Row2.jpg';
+import Arrow from '../assets/Arrow.png';
+import Arrow2 from '../assets/Arrow2.png';
 
 // Reusable InfoBox component
 function InfoBox({ title, subtitle, description, imageSrc, reverse = false, arrowSrc }) {

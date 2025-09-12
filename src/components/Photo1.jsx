@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import Photo from "./assets/Photo.svg";
+import Photo from "../assets/Photo.svg";
 
 export default function Photo1() {
   const introTilt = 90;       // starting angle on mount

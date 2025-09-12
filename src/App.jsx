@@ -1,28 +1,19 @@
-import Background from './Background';
-import Navbar from './Navbar';
-import Hero from './Hero';
-import Photo1 from './Photo1';
-import Benefits from './Benefits';
-import Box3 from './Box3';
-import Testimonies from './Testimonies';
-import Questions from './Questions';
-import Newsletter from './Newsletter';
-import Footer from './Footer';
+// src/App.jsx
+import React, { Suspense, lazy } from "react";
+import { Routes, Route } from "react-router-dom";
+import MainLayout from "./layouts/MainLayouts";
+const Home = lazy(() => import("./Pages/Home"));
+
 
 
 export default function App() {
   return (
-    <div className="min-h-screen relative">
-      <Background />
-      <Navbar />
-      <Hero />
-      <Photo1 />
-      <Benefits />
-      <Box3/>
-      <Testimonies/>
-      <Questions/>
-      <Newsletter/>
-      <Footer />
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
 }
