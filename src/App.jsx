@@ -5,6 +5,7 @@ import MainLayout from "./layouts/MainLayouts";
 const Home = lazy(() => import("./Pages/Home"));
 import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
+import Forgot from "./Pages/Forgot";
 
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot" element={<Forgot />} />
       </Routes>
     </Suspense>
   );
