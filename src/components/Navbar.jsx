@@ -151,9 +151,9 @@ const scrollToTestimonials = () => {
 
         {/* Mobile: Button and Menu Toggle */}
         <div className="lg:hidden flex items-center gap-3">
-          <button className="hidden sm:block px-4 py-2 bg-yellow-400 font-semibold text-black text-sm border-2 shadow-[3px_3px_0px_black] hover:translate-x-1 hover:translate-y-1 hover:shadow-[1px_1px_0px_black] transition-all duration-200">
+          <Link to="/login" className="hidden sm:block px-4 py-2 bg-yellow-400 font-semibold text-black text-sm border-2 shadow-[3px_3px_0px_black] hover:translate-x-1 hover:translate-y-1 hover:shadow-[1px_1px_0px_black] transition-all duration-200">
             Login
-          </button>
+          </Link>
 
           <button 
             className="p-2 text-black"
@@ -224,9 +224,9 @@ const scrollToTestimonials = () => {
             </ul>
             
             {/* Mobile CTA Button */}
-            <button className="w-full sm:hidden px-6 py-3 bg-yellow-400 font-semibold text-black border-2 shadow-[4px_4px_0px_black] hover:translate-x-1 hover:translate-y-1 hover:shadow-[1px_1px_0px_black] transition-all duration-100 mt-4">
+            <Link to="/login" className="w-full sm:hidden px-6 py-3 bg-yellow-400 font-semibold text-black border-2 shadow-[4px_4px_0px_black] hover:translate-x-1 hover:translate-y-1 hover:shadow-[1px_1px_0px_black] transition-all duration-100 mt-4">
               Login 
-            </button>
+            </Link>
           </div>
         </div>
       )}
