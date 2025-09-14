@@ -123,3 +123,4 @@ class user_Authorization(HTTPBearer):
                 raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
         except:
             raise HTTPException(status_code=403, detail="Invalid authorization code")    
+

@@ -3,7 +3,7 @@ from database.DB import session,get_db
 from sqlalchemy.orm import Session
 from models.User import User
 from schema.role import RoleEnum
-from services.UserService import new_user,userin,user_Authorization,forget_otp_sent
+from services.UserService import new_user,userin,user_Authorization
 
 
 router = APIRouter()
@@ -22,7 +22,6 @@ async def Login_user(email: str , password:str, db:Session =Depends(get_db)):
 async def read(token: object = Depends(user_Authorization())):
     return token 
 
-@router.get("forget_password")
+"""@router.get("forget_password")
 async def forget_password(email: str , db:Session =Depends(get_db)):
-    return forget_otp_sent(email=email,db=db)
-    
+    return forget_otp_sent(email=email,db=db)"""
