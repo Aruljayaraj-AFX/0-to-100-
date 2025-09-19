@@ -20,3 +20,4 @@ apscheduler
 uvicorn
 python-jose
 passlib
+bcrypt
