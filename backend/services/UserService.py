@@ -41,7 +41,7 @@ async def new_user(email: str, password: str, role: str, db):
         userid =  generate_unique_user_id(generated_ids)
         existing_user = db.query(User).filter(User.email == email).first()
         if existing_user:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Email already registered")
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Email already registered")
         try:
             if (role=="ADMIN" or role=="USER"):
                 role=role
