@@ -38,7 +38,7 @@ async def new_user(email: str, password: str, role: str, db):
     try:
         all=db.query(User).all()
         generated_ids = {user.userid for user in all}
-        userid = await generate_unique_user_id(generated_ids)
+        userid =  generate_unique_user_id(generated_ids)
         existing_user = db.query(User).filter(User.email == email).first()
         if existing_user:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Email already registered")
@@ -223,4 +223,5 @@ async def new_pass(email: str, new_password: str, db):
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=f"{str(e)}")
     finally:
+
         db.close()
