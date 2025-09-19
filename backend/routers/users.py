@@ -47,13 +47,12 @@ oauth.register(
     client_kwargs={'scope': 'openid email profile'}
 )
 
-
-@router.get("/login/google")
+@router.get("/login/google", include_in_schema=True)
 async def login_google(request: Request):
     redirect_uri = request.url_for('auth_google')
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
-@router.get("/auth/google/callback")
+@router.get("/auth/google/callback", include_in_schema=True)
 async def auth_google(request: Request):
     token = await oauth.google.authorize_access_token(request)
     user_info = token['userinfo']

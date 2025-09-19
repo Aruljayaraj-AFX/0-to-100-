@@ -21,3 +21,4 @@ uvicorn
 python-jose
 passlib
 bcrypt
+Authlib
