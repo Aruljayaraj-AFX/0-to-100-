@@ -26,7 +26,7 @@ SECRET_KEY = str(os.getenv("SECRT_KEY"))
 ALGORITHM = str(os.getenv("ALGORITHM"))
 
 
-async def generate_unique_user_id(generated_ids):
+def generate_unique_user_id(generated_ids):
     while True:
         random_number = random.randint(100000, 999999)
         u_id = random_number
