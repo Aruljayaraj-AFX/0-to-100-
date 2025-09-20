@@ -23,7 +23,6 @@ async def create_user(
     data:Optional[str]=None,
     db: Session = Depends(get_db)
 ):
-    print(password)
     res = await new_user(data=data,type_sig=type_sig,email=email, password=password, role=role, db=db)
     return res
 
@@ -238,4 +237,5 @@ async def verify_otp(email: str, otp: int, db:Session =Depends(get_db)):
 @router.put("reset_password")
 async def reset_password(email: str, new_password: str, db:Session =Depends(get_db)):
     return await new_pass(email=email,new_password=new_password,db=db)
+
 
