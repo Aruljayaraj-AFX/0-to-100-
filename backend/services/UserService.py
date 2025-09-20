@@ -2,9 +2,10 @@ from fastapi import HTTPException,Request,Depends,status
 from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
 from jose import jwt, JWTError, ExpiredSignatureError
 from typing import Optional
-from models.User import User
+from models.info import User
+from models.user import User_info,teacher_info
 from models.otp import otp
-from database.DB import get_db
+from database.DB import get_db 
 from sqlalchemy.orm import Session
 import os
 import smtplib
@@ -34,7 +35,7 @@ def generate_unique_user_id(generated_ids):
             generated_ids.add(u_id)
             return u_id
         
-async def new_user(email: str, password: str, role: str, db):
+async def new_user(type_sig:str,data:dict,email: str, password: str, role: str, db):
     try:
         all=db.query(User).all()
         generated_ids = {user.userid for user in all}
@@ -43,32 +44,57 @@ async def new_user(email: str, password: str, role: str, db):
         if existing_user:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Email already registered")
         try:
-            if (role=="ADMIN" or role=="USER"):
+            if (role=="TEACHER" or role==  "STUDENT"):
                 role=role
             else:
                 raise ValueError("Invalid role")
         except ValueError:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Invalid role")
         hashed_password = hash_password(password)
-        new_user = User(userid=userid ,email=email, password=hashed_password, role=role)
-        db.add(new_user)
+        new_user = User(userid=userid ,email=email, password=hashed_password, role=role,type_sig=type_sig)
+        if type_sig=="NORMAL":
+            if role=="STUDENT":
+                new_user_form = User_info(userid=userid, role=role)
+            elif role=="TEACHER":
+                new_user_form = teacher_info(userid=userid, role=role)
+        elif type_sig=="GOOGLE":
+            if role=="STUDENT":
+                new_user_form = User_info(userid=userid, role=role,fullname=data)
+            elif role=="TEACHER":
+                new_user_form = teacher_info(userid=userid, role=role,fullname=data)
+        elif type_sig=="FACEBOOK":
+            if role=="STUDENT":
+                new_user_form = User_info(userid=userid, role=role,fullname=data)
+            elif role=="TEACHER":
+                new_user_form = teacher_info(userid=userid, role=role,fullname=data)
+        elif type_sig=="GIT":
+            if role=="STUDENT":
+                new_user_form = User_info(userid=userid, role=role,fullname=data)
+            elif role=="TEACHER":
+                new_user_form = teacher_info(userid=userid, role=role,fullname=data)
+        db.add_all([new_user,new_user_form])
         db.commit()
         db.refresh(new_user)
+        if type_sig in ["GOOGLE","FACEBOOK","GIT"]:
+            response = await userin(login_req=type_sig,email=email, password=type_sig,db=db)
+        else:
+            response = await userin(login_req="NORMAL",email=email, password=password,db=db)
         return {
+            "type_sig": type_sig,
             "message": "User created successfully",
             "user_id": new_user.userid,
             "email": new_user.email,
+            "login":response
         }
     except IntegrityError as e:
         db.rollback()
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Database integrity error")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=f"Database integrity error{str(e)}")
 
     except SQLAlchemyError as e:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=f"{str(e)}")
     finally:
         db.close()
-
 
 def create_access_token(email:str,role:str):
     try:
@@ -83,15 +109,16 @@ def create_access_token(email:str,role:str):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=f"Token generation error: {str(e)}")
 
 
-async def userin(email: str, password: str, db):
+async def userin(login_req:str,email: str, password: str, db):
     try:
+        if login_req not in ["NORMAL","GOOGLE","FACEBOOK","GIT"]:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail=f"Invalid login request{login_req}")
         user = db.query(User).filter(User.email == email).first()
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User not found")
-
-        if not verify_password(password, user.password):
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid password")
-
+        if login_req == "NORMAL":
+            if not verify_password(password, user.password):
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail=f"Invalid password{str([password,user.password])}")
         token = create_access_token(email=user.email,role=user.role)
         return {
             "message": "Login successful",
@@ -186,7 +213,7 @@ async def forget_otp_sent(email: str, db):
     finally:
         db.close()
 
-async def verify_otp(email: str, otp_value: int, db):
+async def check_otp(email: str, otp_value: int, db):
     try:
         user_otp = db.query(otp).filter(otp.user == email, otp.otp == otp_value).first()
         if not user_otp:
@@ -214,6 +241,7 @@ async def new_pass(email: str, new_password: str, db):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="User not found")
         hashed_password = hash_password(new_password)
         user.password = hashed_password
+        user.type_sig="NORMAL"
         db.commit()
         db.refresh(user)
         return {
@@ -223,5 +251,4 @@ async def new_pass(email: str, new_password: str, db):
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail=f"{str(e)}")
     finally:
-
         db.close()

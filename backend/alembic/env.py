@@ -2,9 +2,9 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from models.User import Base
-from models.otp import Base1
-
+from models.user import Base2,Base3
+from models.otp import Basee1  # Import your Base
+from models.info import Basee  # Import your Base
 from alembic import context
 
 # this is the Alembic Config object, which provides
@@ -20,7 +20,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = Base.metadata,Base1.metadata
+target_metadata = Basee.metadata, Base2.metadata, Base3.metadata, Basee1.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
