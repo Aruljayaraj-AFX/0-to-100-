@@ -10,7 +10,7 @@ import os
 from starlette.config import Config
 from typing import Optional
 import json
-import secrets
+from urllib.parse import urlencode
 
 router = APIRouter()
 
@@ -58,11 +58,20 @@ async def auth_google(request: Request, db: Session = Depends(get_db)):
         db=db,
         data=user_info["name"]
         )
-        if response.get("login", {}).get("message") == "Login successful":
-            frontend_url = f"http://localhost:5173/signup?token={response['login']['token']}"
+        if (response.get("login", {}).get("message") == "Login successful" )& (response.get("message") == "User created successfully"):
+            params = {
+            "token": response['login']['token'],
+            "message": response.get("message", "")
+            }
+            frontend_url = f"http://localhost:5173/login?{urlencode(params)}"
             return RedirectResponse(url=frontend_url)
-        else:
-            return response
+        elif response.get("message") == "User already exists, logged in successfully":
+            params = {
+            "token": response['login']['token'],
+            "message": response.get("message", "")
+            }
+            frontend_url = f"http://localhost:5173/login?{urlencode(params)}" 
+            return RedirectResponse(url=frontend_url)
 
     elif act_test == "login":
         response = await userin(login_req="GOOGLE",email=user_info["email"], password="GOOGLE", db=db)
