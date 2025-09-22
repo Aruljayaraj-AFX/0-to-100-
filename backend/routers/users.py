@@ -201,27 +201,32 @@ oauth2.register(
 )
 
 @router.get("/login/github", include_in_schema=True)
-async def login_github(request: Request,act:str,type_role: RoleEnum = Query(..., description="Role must be either 'TEACHER' or 'STUDENT'")):
-    redirect_uri = request.url_for('github_callback')
-    state = json.dumps({"type_role": type_role.value,"act": act})
-    return await oauth2.github.authorize_redirect(request, redirect_uri, state=state)
+async def login_github(
+    request: Request,
+    act: str,
+    type_role: RoleEnum = Query(..., description="Role must be either 'TEACHER' or 'STUDENT'")
+):
+    github = oauth2.create_client("github")
+    redirect_uri = request.url_for("github_callback")
+    state = json.dumps({"type_role": type_role.value, "act": act})
+    return await github.authorize_redirect(request, redirect_uri, state=state)
 
-@router.get("/auth/git/callback")
+
+@router.get("/auth/github/callback", include_in_schema=True)
 async def github_callback(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    github = oauth2.create_client('github')
+    github = oauth2.create_client("github")
     token = await github.authorize_access_token(request)
 
-    # Get user profile info
-    resp = await github.get('user', token=token)
+    # Get GitHub profile
+    resp = await github.get("user", token=token)
     user_info = resp.json()
 
-    # Get primary email — GitHub requires separate API call
-    email_resp = await github.get('user/emails', token=token)
+    # Get primary verified email
+    email_resp = await github.get("user/emails", token=token)
     emails = email_resp.json()
-
     primary_email = None
     for e in emails:
         if e.get("primary") and e.get("verified"):
@@ -229,40 +234,63 @@ async def github_callback(
             break
 
     if not primary_email:
-        raise HTTPException(status_code=400, detail="No verified primary email found from GitHub")
+        raise HTTPException(status_code=400, detail="No verified primary email from GitHub")
 
-    # Get and validate state
-    raw_state = request.query_params.get('state')
+    # --- Extract state ---
+    raw_state = request.query_params.get("state")
     if not raw_state:
         raise HTTPException(status_code=400, detail="Missing 'state' parameter")
     try:
         state = json.loads(raw_state)
     except json.JSONDecodeError:
-        raise HTTPException(status_code=400, detail="Invalid 'state' parameter format")
+        raise HTTPException(status_code=400, detail="Invalid 'state' format")
 
-    # Validate role
-    try:
-        type_role = RoleEnum(state["type_role"])
-    except KeyError:
-        raise HTTPException(status_code=400, detail="'type_role' missing from state")
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid 'type_role' value")
-
-    # Call your user creation logic
+    type_role = RoleEnum(state["type_role"])
     act_test = state.get("act")
+
+    # --- SIGNUP FLOW ---
     if act_test == "signup":
         response = await new_user(
-        email=primary_email,
-        password="GIT",
-        role=type_role,
-        type_sig="GIT",
-        db=db,
-        data=user_info.get("name", "GitHub User")
+            email=primary_email,
+            password="GIT",
+            role=type_role,
+            type_sig="GIT",
+            db=db,
+            data=user_info.get("name", "GitHub User")
         )
-        return response
+
+        if (response.get("login", {}).get("message") == "Login successful") and (
+            response.get("message") == "User created successfully"
+        ):
+            params = {
+                "token": response["login"]["token"],
+                "message": response.get("message", "")
+            }
+            frontend_url = f"http://localhost:5173/signup?{urlencode(params)}"
+            return RedirectResponse(url=frontend_url)
+
+        elif response.get("message") == "User already exists, logged in successfully":
+            params = {
+                "token": response["login"]["token"],
+                "message": response.get("message", "")
+            }
+            frontend_url = f"http://localhost:5173/signup?{urlencode(params)}"
+            return RedirectResponse(url=frontend_url)
+
+    # --- LOGIN FLOW ---
     elif act_test == "login":
-        response = await userin(login_req="GIT",email=primary_email, password="GIT", db=db)
-        return response
+        response = await userin(
+            login_req="GIT",
+            email=primary_email,
+            password="GIT",
+            db=db
+        )
+        if response.get("login", {}).get("message") == "Login successful":
+            frontend_url = f"http://localhost:5173/login?token={response['login']['token']}"
+            return RedirectResponse(url=frontend_url)
+
+    # fallback
+    raise HTTPException(status_code=400, detail="Invalid action or unexpected response")
 
 @router.get("Login_user")
 async def Login_user(login_req:str,email:str,password:str, db:Session =Depends(get_db)):
