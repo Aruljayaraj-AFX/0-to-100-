@@ -19,6 +19,7 @@ from dotenv import load_dotenv
 import random
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from fastapi.responses import RedirectResponse, JSONResponse
 
 
 load_dotenv()
@@ -49,7 +50,7 @@ async def new_user(type_sig:str,data:dict,email: str, password: str, role: str, 
                     password=password,
                     db=db
                 )
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=f"Email already registered, logging...{response}")
+                return JSONResponse(status_code=409, content={"detail": f"Email already registered, logging...{response}"})
         try:
             if (role=="TEACHER" or role==  "STUDENT"):
                 role=role
