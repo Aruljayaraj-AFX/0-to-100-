@@ -72,6 +72,12 @@ async def auth_google(request: Request, db: Session = Depends(get_db)):
             }
             frontend_url = f"http://localhost:5173/signup?{urlencode(params)}" 
             return RedirectResponse(url=frontend_url)
+        else:
+            params = {
+            "message": response.get("message", "")
+            }
+            frontend_url = f"http://localhost:5173/signup?{urlencode(params)}"
+            return RedirectResponse(url=frontend_url)
 
     elif act_test == "login":
         response = await userin(login_req="GOOGLE",email=user_info["email"], password="GOOGLE", db=db)
