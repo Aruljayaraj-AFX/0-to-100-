@@ -59,13 +59,13 @@ async def auth_google(request: Request, db: Session = Depends(get_db)):
         data=user_info["name"]
         )
         if response.get("login", {}).get("message") == "Login successful":
-            frontend_url = f"http://localhost:5173?token={response['login']['token']}"
+            frontend_url = f"http://localhost:5173/signup?token={response['login']['token']}"
             return RedirectResponse(url=frontend_url)
 
     elif act_test == "login":
         response = await userin(login_req="GOOGLE",email=user_info["email"], password="GOOGLE", db=db)
         if response.get("login", {}).get("message") == "Login successful":
-            frontend_url = f"http://localhost:5173?token={response['login']['token']}"
+            frontend_url = f"http://localhost:5173/login?token={response['login']['token']}"
             return RedirectResponse(url=frontend_url)
 
 config = Config(".env")
