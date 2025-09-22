@@ -43,19 +43,12 @@ async def new_user(type_sig:str,data:dict,email: str, password: str, role: str, 
         userid =  generate_unique_user_id(generated_ids)
         existing_user = db.query(User).filter(User.email == email).first()
         if existing_user:
-            if existing_user.type_sig == type_sig:
-                response = userin(
-                    login_req=type_sig,
-                    email=email, 
-                    password=password,
-                    db=db
-                )
-                return JSONResponse(
-    status_code=409,
-    content={
-        "message": f"User already exists, logged in successfully: {response}"
-    }
-)
+            response = await userin(login_req=type_sig,email=email,password=password,db=db)
+            return JSONResponse(status_code=409,content={
+            "message": f"User already exists, logged in successfully",
+            "user_data": response  
+            }
+            )
         try:
             if (role=="TEACHER" or role==  "STUDENT"):
                 role=role
