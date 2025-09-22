@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from models.info import User
 from schema.role import RoleEnum
 from services.UserService import new_user,userin,user_Authorization,forget_otp_sent,check_otp,new_pass
-from starlette.responses import RedirectResponse, JSONResponse
+from starlette.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuth
 import os
 from starlette.config import Config
