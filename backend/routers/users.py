@@ -93,38 +93,29 @@ oauth1.register(
 )
 
 @router.get("/login/facebook", include_in_schema=True)
-async def login(
+async def login_facebook(
     request: Request,
-    act:str,
+    act: str,
     type_role: RoleEnum = Query(..., description="Role must be either 'TEACHER' or 'STUDENT'")
 ):
     facebook = oauth1.create_client('facebook')
-    redirect_uri = "https://43c7e0a85418.ngrok-free.app/0TO100/v1/users/auth/facebook/callback"
-    
-    
-    # Use .value to serialize clean string like "TEACHER"
-    state = json.dumps({"type_role": type_role.value,"act": act})
-    
+    redirect_uri = request.url_for("facebook_callback")  # use same host dynamically
+
+    # Store state (role + act)
+    state = json.dumps({"type_role": type_role.value, "act": act})
+
     return await facebook.authorize_redirect(request, redirect_uri, state=state)
 
-@router.get("/auth/facebook/callback" , include_in_schema=True)
+
+@router.get("/auth/facebook/callback", include_in_schema=True)
 async def facebook_callback(
     request: Request,
     db: Session = Depends(get_db)
 ):
     facebook = oauth1.create_client('facebook')
     token = await facebook.authorize_access_token(request)
-    state = json.loads(request.query_params.get('state'))
-    act_test = state.get("act") 
-    # Get user info from Facebook
-    resp = await facebook.get(
-        "me",
-        params={"fields": "id,name,email,first_name,last_name,picture"},
-        token=token
-    )
-    user_info = resp.json()
 
-    # Get and validate state
+    # Extract state safely
     raw_state = request.query_params.get('state')
     if not raw_state:
         raise HTTPException(status_code=400, detail="Missing 'state' parameter")
@@ -133,31 +124,63 @@ async def facebook_callback(
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid 'state' parameter format")
 
-    # Validate role
-    try:
-        type_role = RoleEnum(state["type_role"])
-    except KeyError:
-        raise HTTPException(status_code=400, detail="'type_role' missing from state")
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid 'type_role' value")
+    type_role = RoleEnum(state["type_role"])
+    act_test = state.get("act")
 
-    # Ensure email is available
+    # Fetch user info from Facebook
+    resp = await facebook.get(
+        "me",
+        params={"fields": "id,name,email,first_name,last_name,picture"},
+        token=token
+    )
+    user_info = resp.json()
+
     if "email" not in user_info:
         raise HTTPException(status_code=400, detail="Email not returned by Facebook")
 
+    # --- SIGNUP FLOW ---
     if act_test == "signup":
         response = await new_user(
-        email=user_info["email"],
-        password="FACEBOOK",
-        role=type_role,
-        type_sig="FACEBOOK",
-        db=db,
-        data=user_info["name"]  # ensure your new_user handles this correctly
+            email=user_info["email"],
+            password="FACEBOOK",
+            role=type_role,
+            type_sig="FACEBOOK",
+            db=db,
+            data=user_info["name"]
         )
-        return response
+
+        if (response.get("login", {}).get("message") == "Login successful") & (
+            response.get("message") == "User created successfully"
+        ):
+            params = {
+                "token": response['login']['token'],
+                "message": response.get("message", "")
+            }
+            frontend_url = f"http://localhost:5173/signup?{urlencode(params)}"
+            return RedirectResponse(url=frontend_url)
+
+        elif response.get("message") == "User already exists, logged in successfully":
+            params = {
+                "token": response['login']['token'],
+                "message": response.get("message", "")
+            }
+            frontend_url = f"http://localhost:5173/signup?{urlencode(params)}"
+            return RedirectResponse(url=frontend_url)
+
+    # --- LOGIN FLOW ---
     elif act_test == "login":
-        response = await userin(login_req="FACEBOOK",email=user_info["email"], password="FACEBOOK", db=db)
-        return response 
+        response = await userin(
+            login_req="FACEBOOK",
+            email=user_info["email"],
+            password="FACEBOOK",
+            db=db
+        )
+        if response.get("login", {}).get("message") == "Login successful":
+            frontend_url = f"http://localhost:5173/login?token={response['login']['token']}"
+            return RedirectResponse(url=frontend_url)
+
+    # fallback
+    raise HTTPException(status_code=400, detail="Invalid action or unexpected response")
 
 
 oauth2 = OAuth()
