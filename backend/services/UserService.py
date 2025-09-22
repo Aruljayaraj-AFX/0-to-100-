@@ -50,7 +50,12 @@ async def new_user(type_sig:str,data:dict,email: str, password: str, role: str, 
                     password=password,
                     db=db
                 )
-                return JSONResponse(status_code=409, content={"detail": f"Email already registered, logging...{response}"})
+                return JSONResponse(
+    status_code=409,
+    content={
+        "message": f"User already exists, logged in successfully: {response}"
+    }
+)
         try:
             if (role=="TEACHER" or role==  "STUDENT"):
                 role=role
