@@ -43,14 +43,19 @@ async def new_user(type_sig:str,data:dict,email: str, password: str, role: str, 
         userid =  generate_unique_user_id(generated_ids)
         existing_user = db.query(User).filter(User.email == email).first()
         if existing_user:
-           response = await userin(login_req=existing_user.type_sig,email=email, password=existing_user.type_sig,db=db)
-           return {
-            "type_sig": existing_user.type_sig,
-            "message": "User already exists, logged in successfully",
-            "user_id": existing_user.userid,
-            "email": existing_user.email,
-            "login":response
-           }
+            if existing_user.type_sig == type_sig and type_sig in ["GOOGLE","FACEBOOK","GIT"]:
+                response = await userin(login_req=existing_user.type_sig,email=email, password=existing_user.type_sig,db=db)
+                return {
+                "type_sig": existing_user.type_sig,
+                "message": "User already exists, logged in successfully",
+                "user_id": existing_user.userid,
+                "email": existing_user.email,
+                "login":response
+                }
+            else:
+                return {
+                    "message": "User already exists, try with existing login method",
+                }
         try:
             if (role=="TEACHER" or role==  "STUDENT"):
                 role=role
