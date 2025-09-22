@@ -42,6 +42,15 @@ async def new_user(type_sig:str,data:dict,email: str, password: str, role: str, 
         userid =  generate_unique_user_id(generated_ids)
         existing_user = db.query(User).filter(User.email == email).first()
         if existing_user:
+            if type_sig in ["GOOGLE","FACEBOOK","GIT"] and existing_user.type_sig==type_sig:
+                response = await userin(login_req=type_sig,email=email, password=type_sig,db=db)
+                return {
+                    "type_sig": type_sig,
+                    "message": "User already registered, logged in successfully",
+                    "user_id": existing_user.userid,
+                    "email": existing_user.email,
+                    "login":response
+                }
             raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Email already registered")
         try:
             if (role=="TEACHER" or role==  "STUDENT"):
