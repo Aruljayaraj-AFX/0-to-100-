@@ -42,7 +42,14 @@ async def new_user(type_sig:str,data:dict,email: str, password: str, role: str, 
         userid =  generate_unique_user_id(generated_ids)
         existing_user = db.query(User).filter(User.email == email).first()
         if existing_user:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=f"Email already registered with {existing_user.type_sig}. Please login using {existing_user.type_sig}.")
+            if existing_user.type_sig == type_sig:
+                response = userin(
+                    login_req=type_sig,
+                    email=email, 
+                    password=password,
+                    db=db
+                )
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=f"Email already registered, logging...{response}")
         try:
             if (role=="TEACHER" or role==  "STUDENT"):
                 role=role
