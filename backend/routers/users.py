@@ -63,14 +63,14 @@ async def auth_google(request: Request, db: Session = Depends(get_db)):
             "token": response['login']['token'],
             "message": response.get("message", "")
             }
-            frontend_url = f"http://localhost:5173/login?{urlencode(params)}"
+            frontend_url = f"http://localhost:5173/signup?{urlencode(params)}"
             return RedirectResponse(url=frontend_url)
         elif response.get("message") == "User already exists, logged in successfully":
             params = {
             "token": response['login']['token'],
             "message": response.get("message", "")
             }
-            frontend_url = f"http://localhost:5173/login?{urlencode(params)}" 
+            frontend_url = f"http://localhost:5173/signup?{urlencode(params)}" 
             return RedirectResponse(url=frontend_url)
 
     elif act_test == "login":
